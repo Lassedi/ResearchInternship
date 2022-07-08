@@ -1,9 +1,11 @@
+###Script used for plotting alpha and tehta parameter estimates###
 rm(list = ls())
 
 library(bayestestR)
 library(dplyr)
 library(tidyr)
 library(ggplot2)
+library(RColorBrewer)
 
 
 setwd(r"(D:\Psychology\Master\Research Internship\Data\2ndrun)")
@@ -20,11 +22,11 @@ sampled_3 <- sampled
 sampled_obj <- list(sampled_1, sampled_2, sampled_3)
 
 ##load data - every participant has one task removed
-load("SDT_full_noCon_al11.Rdata")
+load("SDT_all1.Rdata")
 sampled_1 <- sampled
-load("SDT_full_noCon_al12.Rdata")
+load("SDT_all2.Rdata")
 sampled_2 <- sampled
-load("SDT_full_noCon_al13.Rdata")
+load("SDT_all3.Rdata")
 sampled_3 <- sampled
 sampled_obj <- c(sampled_1, sampled_2, sampled_3)
 
@@ -33,6 +35,9 @@ load("SDT_prop_.Rdata")
 sampled_1 <- sampled
 sampled_obj <- c(sampled_1)
 
+#load data - al3
+load("SDT_all3.Rdata")
+sampled_1 <-  sampled
 
 
 #remove unne
@@ -75,9 +80,9 @@ prepare_df <- function(sampled_obj, alpha_mu = FALSE, part_numb, task){
     #print(paste(a, b))
     df <- sampled_obj$samples$alpha[a:b, part_numb, sampled_obj$samples$stage == "sample"]
     pars <- rownames(df)
-    print(deparse(substitute(sampled_obj)))
-    print(paste(task, a, b))
-    print(pars)
+    #print(deparse(substitute(sampled_obj)))
+    #print(paste(task, a, b))
+    #print(pars)
     #print(df[,1:5])
     df <- as.data.frame(t(df))
     df <- df %>% pivot_longer(cols=everything(), names_to = "parameter", values_to = "estimate")
@@ -112,7 +117,7 @@ id_MD <- function(sampled_obj){
 }
 
 #loop through subjects with MD - call bayes_tests for those subjects
-alpha_tests <- function(sampled_obj, MD_obj, plot = FALSE){
+alpha_tests <- function(sampled_obj, MD_obj){
   count <- 0
   df_alpha <- data.frame()
   for (x in 1:length(MD_1)){ # :length(MD_obj)
@@ -134,22 +139,16 @@ alpha_tests <- function(sampled_obj, MD_obj, plot = FALSE){
     
     #print(paste(nrow(df_full),  nrow(df)))
     
-    if (plot == TRUE){
       count <- count + 1
-      df_alpha_p <- bayes_tests(pars, dfs, alpha = TRUE, plot = TRUE)
+      df_alpha_p <- bayes_tests(pars, dfs, alpha = TRUE)
       df_alpha_p$participant <- count
       #print(nrow(df_alpha_p))
       df_alpha <- rbind(df_alpha, df_alpha_p)
-    }
-    else{
-      count <- count + 1
-      bayes_tests(pars, dfs, alpha = TRUE)
-    }
+    
   }
   cat(count)
   return(df_alpha)
 }
-
 #bayesian t-test and CIs of diference between posterior (df with MD) and null(full df)
 bayes_tests <- function(pars, df, alpha = FALSE){
   count <- 0
@@ -221,11 +220,12 @@ plot_dist <- function(plot_df, destination, MD, alpha = FALSE, sampled_obj = NUL
     pdf(file = destination)
     par(mfrow = c(2,2))
     for (par in pars){
-      plot_df_par <- plot_df[(plot_df$par == par)&(plot_df$MD !="prior"),]
-      print(nrow(plot_df_par))
+      plot_df_par <- plot_df[(plot_df$par == par)|(plot_df$MD =="prior"),]
+      #print(nrow(plot_df_par))
       print(ggplot(plot_df_par, aes(x=estimate, fill=MD)) +
-                geom_density(color = "999999", alpha=.6) +
-                geom_vline(xintercept= 0, color="red", linetype="dashed", size=0.5) + 
+                geom_density(color = "grey", alpha=.6) +
+                geom_vline(xintercept= 0, color="red", linetype="dashed", size=0.5) +
+                theme_classic()+
                 labs(title = paste(par, " - theta")
                      ))
     }
@@ -246,18 +246,19 @@ plot_dist <- function(plot_df, destination, MD, alpha = FALSE, sampled_obj = NUL
       pars <- sampled_full$par_names[a:b]
       theta_all <- prepare_df(sampled_obj)
       for (par in pars){
-        plot_df_par_alpha <- plot_df[(plot_df$par == par) & plot_df$participant == subs,]
-        print(colnames(theta_all))
-        print(colnames(plot_df_par_alpha))
+        plot_df_par_alpha <- plot_df[(plot_df$par == par) & (plot_df$participant == subs),]
+        #print(colnames(theta_all))
+        #print(colnames(plot_df_par_alpha))
         theta <- theta_all[theta_all$parameter == par,]
-        theta$MD <- "theta"
+        theta$MD <- "Theta-MD"
         cat("nrow theta: ", nrow(theta), "nrow alpha: ", nrow(plot_df_par_alpha), "\n")
-        print(head(plot_df_par_alpha))
+        #print(head(plot_df_par_alpha))
         print(ggplot(NULL, aes(x=estimate, fill=MD)) +
-                geom_density(data = plot_df_par_alpha,color = "white", alpha=.6, position="identity") +
-                geom_density(data = theta, color= "white", alpha=.6, position="identity") +
-                geom_vline(xintercept= 0, color="red", linetype="dashed", size=0.5) + 
-                labs(title = paste(par, " - alpha", "\nSubject:", sub)))
+                geom_density(data = plot_df_par_alpha,color = "white", alpha=.6) +
+                geom_density(data = theta, color= "white", alpha=.6) +
+                geom_vline(xintercept= 0, color="red", linetype="dashed", size=0.5) +
+                theme_classic()+
+                labs(title = paste(par, " - Random Effects", "\nSubject:", sub)))
       }
     }
     dev.off()
@@ -266,16 +267,19 @@ plot_dist <- function(plot_df, destination, MD, alpha = FALSE, sampled_obj = NUL
 
 
 ##group level
-destination_s1 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\theta_h1_V2_den.pdf)"
-destination_s2 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\theta_h2_V2_den.pdf)"
-destination_s3 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\theta_h3_V2_den.pdf)"
+destination_s1 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\theta_h1_V2_den_wP.pdf)"
+destination_s2 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\theta_h2_V2_den_wP.pdf)"
+destination_s3 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\theta_h3_V2_den_wP.pdf)"
 
-destination_s1 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\theta_s1_MDevery1_hist.pdf)"
+destination_s1 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\theta_s1_MDevery1_den_wP.pdf)"
 destination_s2 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\theta_s2_MDevery1_hist.pdf)"
 destination_s3 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\theta_s3_MDevery1_hist.pdf)"
 
+"storage - all3"
+destination_s1 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\theta_all3_den_wP.pdf)"
+
 "storage - prop MD"
-destination_s1 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\theta_prop_den.pdf)"
+destination_s1 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\theta_prop_den_wP.pdf)"
 
 df_full <- prepare_df(sampled_full)
 df_1 <- prepare_df(sampled_1)
@@ -307,7 +311,7 @@ destination_s2 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\alph
 destination_s3 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\alpha_s3_V2_hist.pdf)"
 
 #storage destination - every sub missing one task
-destination_s1 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\alpha_s1_MDevery1_hist.pdf)"
+destination_s1 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\alpha_s1_MDevery1_den.pdf)"
 destination_s2 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\alpha_s2_MDevery1_hist.pdf)"
 destination_s3 <- r"(D:\Psychology\Master\Research Internship\Plots\Dist_V2\alpha_s3_MDevery1_hist.pdf)"
 
@@ -320,9 +324,9 @@ MD_2 <- id_MD(sampled_2)
 MD_3 <- id_MD(sampled_3)
 
 #create dfs to plot - identify which task is missing for which person and get the full and rec for each par of the missing task
-alpha_df_s1 <- alpha_tests(sampled_1, MD_1, plot = TRUE)
-alpha_df_s2 <- alpha_tests(sampled_2, MD_2, plot = TRUE)
-alpha_df_s3 <- alpha_tests(sampled_3, MD_3, plot = TRUE)
+alpha_df_s1 <- alpha_tests(sampled_1, MD_1)
+alpha_df_s2 <- alpha_tests(sampled_2, MD_2)
+alpha_df_s3 <- alpha_tests(sampled_3, MD_3)
 
 #plot the dataframes
 plot_dist(alpha_df_s1, destination_s1, MD_1, alpha = TRUE, sampled_1)

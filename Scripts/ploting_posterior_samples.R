@@ -1,3 +1,4 @@
+###Script used to plot posterior predicitve plots###
 rm(list = ls())
 library(dplyr)
 library(ggplot2)
@@ -148,7 +149,13 @@ rm(sampled)
 
 #get MD_list for alpha
 load("SDT_prop_.Rdata")
-load("SDT_full_noCon_al11.Rdata")
+
+load("SDT_half_1.Rdata")
+load("SDT_half_2.Rdata")
+load("SDT_half_3.Rdata")
+
+
+load("SDT_all1.Rdata")
 load("SDT_full_noCon_al12.Rdata")
 load("SDT_full_noCon_al13.Rdata")
 
@@ -156,6 +163,11 @@ load("SDT_full_noCon_al13.Rdata")
 MD_list <- id_MD(sampled) 
 
 "Alpha - destination"
+alpha_dest <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\alpha_halfMD_1.pdf)"
+alpha_dest <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\alpha_halfMD_2.pdf)"
+alpha_dest <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\alpha_halfMD_3.pdf)"
+
+
 alpha_dest <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\EvSubMD_1_alpha.pdf)"
 alpha_dest <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\EvSubMD_2_alpha.pdf)"
 alpha_dest <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\EvSubMD_3_alpha.pdf)"
@@ -163,9 +175,13 @@ alpha_dest <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\EvSu
 alpha_dest <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\Prop_alpha.pdf)"
 
 "Theta - destination"
-destination <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\EvSubMD_3.pdf)"
-destination <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\EvSubMD_2.pdf)"
+destination <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\halfMD_1.pdf)"
+destination <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\halfMD_2.pdf)"
+destination <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\halfMD_3.pdf)"
+
 destination <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\EvSubMD_1.pdf)"
+destination <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\EvSubMD_2.pdf)"
+destination <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\EvSubMD_3.pdf)"
 
 destination <- r"(D:\Psychology\Master\Research Internship\Plots\PostPred_V2\Prop.pdf)"
 
@@ -196,4 +212,4 @@ source("post_pred_alpha.R", echo = TRUE)
 dev.off()
 
 #return to data direct
-setwd(r"(D:\Psychology\Master\Research Internship\Data)")
+setwd(r"(D:\Psychology\Master\Research Internship\Data\2ndrun)")

@@ -1,3 +1,4 @@
+###Script used to sample parameter estimates from the posterior distribution###
 rm(list=ls())
 library(dplyr)
 library(rtdists)
@@ -7,29 +8,25 @@ library(scales)
 library(ggpubr)
 
 ## load dataset 
-setwd(r"(D:\Psychology\Master\Research Internship\Data)")
+setwd(r"(D:\Psychology\Master\Research Internship\Data\2ndrun)")
+
 
 load("SDT_full_.Rdata")
-full_posterior <- sampled
-full_posterior$data <- full_posterior$data[-c(3,52),]
-full_posterior$n_subjects <- 56
-
-load("SDT_full_noCon.Rdata")
 full_data <- sampled$data
 
-load("SDT_full_noCon_1.Rdata")
+load("SDT_half_1.Rdata")
 half_MD_1 <- sampled
 half_MD_1$data <- full_data
 
-load("SDT_full_noCon_2.Rdata")
+load("SDT_half_2.Rdata")
 half_MD_2 <- sampled
 half_MD_2$data <- full_data
 
-load("SDT_full_noCon_3.Rdata")
+load("SDT_half_3.Rdata")
 half_MD_3 <- sampled
 half_MD_3$data <- full_data
 
-load("SDT_full_noCon_al11.Rdata")
+load("SDT_all1.Rdata")
 every1_MD_1 <- sampled
 every1_MD_1$data <- full_data
 
@@ -41,7 +38,7 @@ load("SDT_full_noCon_al13.Rdata")
 every1_MD_3 <- sampled
 every1_MD_3$data <- full_data
 
-load("SDT_prop.Rdata")
+load("SDT_prop_.Rdata")
 prop_MD <- sampled
 prop_MD$data <- full_data
 
@@ -389,7 +386,7 @@ lex_SDT_ll <- function(x, data, sample = FALSE){                   # x = named v
 
 
 
-tmp<-generate.posterior(sampled, 20)
+tmp<-generate.posterior(every1_MD_1, 20)
 tmp=do.call(rbind,tmp)
 
 save(tmp, file = "samp_full.Rdata")

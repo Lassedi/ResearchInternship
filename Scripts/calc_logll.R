@@ -1,15 +1,48 @@
-###Script used to become familiar with the SDT functions and the PMwG package###
+###Script used to calculate log-likelihood sums###
 rm(list=ls())
 library(dplyr)
-library(rtdists)
-library(pmwg)
 
-# setwd("~/Documents/Research/Amsterdam/Code/pmwg_new-master")
-# source("pmwg/sampling_factors.R")
-#setwd("~/Documents/Research/Honours_2021/output/Missing_Data")
-setwd(r"(D:\Psychology\Master\Research Internship\Data)")
-load("fullData.Rdata")
-df <- data[1:2,]
+setwd(r"(D:\Psychology\Master\Research Internship\Data\2ndrun)")
+load("SDT_full_.Rdata")
+sampled_full <- sampled
+
+load("SDT_half_1.Rdata")
+sampled_h1 <- sampled
+
+load("SDT_half_2.Rdata")
+sampled_h2 <- sampled
+
+load("SDT_half_3.Rdata")
+sampled_h3 <- sampled
+
+load("SDT_all1.Rdata")
+sampled_a1 <- sampled
+
+load("SDT_prop_.Rdata")
+sampled_prop <- sampled
+
+
+
+#identify which tasks are missing for which individuals and return the list
+id_MD <- function(sampled_obj){
+  task_list <- c(2,3,4,5)
+  tasks_MD <- sampled_obj$data$task
+  count <- 0
+  index <- 1
+  MD <- list()
+  for (sub in tasks_MD){
+    count <- count + 1
+    for (numb in task_list){
+      if ((numb %in% sub) == FALSE){
+        bind <- c(count, numb)
+        MD[[index]] <- bind
+        index <- index + 1
+      }
+    }
+  }
+  return(MD)
+}
+
 nBack_ll <- function(x, data, sample = FALSE){                   # x = named vector of parameters, sample = sample values from the posterior distribution?
   names(x)[1]<-"C"
   if (sample) {
@@ -17,11 +50,11 @@ nBack_ll <- function(x, data, sample = FALSE){                   # x = named vec
     for (i in 1:nrow(data)){
       if (data$cond[i] == "target"){                                          # if this is a target
         data$responseSample[i] <- ifelse(rnorm(1, mean = x["target.d"], sd = 1) > x["C"],"target","nontarget")
-      }else if (data$cond[i] == "lure"){                            # Now if this is a lure
+      }else if (data$cond[i] == "lure"){                            # Nonrow(w if this is a lure
         data$responseSample[i] <- ifelse(rnorm(1, mean = x["lure.d"], sd = 1) > x["C"],"target","nontarget") 
       }else{                                                        # and if this is a nontarget
-        data$responseSample[i] <- ifelse(rnorm(1, mean = x["nonlure.d"], sd = 1) > x["C"],"target","nontarget")
-        } 
+        data$responseSample[i] <- ifelse(rnorm(1, mean = 0, sd = 1) > x["C"],"target","nontarget")
+      } 
     }
     return(data)
   } else {
@@ -45,10 +78,10 @@ nBack_ll <- function(x, data, sample = FALSE){                   # x = named vec
         } 
       }else{                                                        # and if this is a nontarget
         if (data$response[i] == "target"){                          # and they responded "target"
-          out[i] <- pnorm(x["C"], mean = x["nonlure.d"], sd = 1,  # find the probability of x being  
+          out[i] <- pnorm(x["C"], mean = 0, sd = 1,  # find the probability of x being  
                           log.p = TRUE, lower.tail = FALSE)         # above the criterion
         } else {                                                    # but if they responded "nontarget"
-          out[i] <- pnorm(x["C"], mean = x["nonlure.d"], sd = 1,  # find the probability of x being
+          out[i] <- pnorm(x["C"], mean = 0, sd = 1,  # find the probability of x being
                           log.p = TRUE, lower.tail = TRUE)          # below the criterion
         } 
       }
@@ -267,6 +300,7 @@ edt_SDT_ll <- function(x, data, sample = FALSE){                   # x = named v
   } 
 }
 
+
 lex_SDT_ll <- function(x, data, sample = FALSE){                   # x = named vector of parameters, sample = sample values from the posterior distribution?
   names(x)[1]<-"C"
   if (sample) {
@@ -325,109 +359,139 @@ lex_SDT_ll <- function(x, data, sample = FALSE){                   # x = named v
 }
 
 
-ll_joint <- function(x,data,sample=FALSE) {
-  edt = x[1:8]
-  pdt = x[9:14]
-  nb = x[15:18]
-  lex = x[19:22]
-  
-  sub = data$subject
-  data.edt = as.data.frame(data$edt)
-  data.pdt = as.data.frame(data$pdt)
-  data.nb = as.data.frame(data$nback)
-  data.lex = as.data.frame(data$ldt)
-  
-  if (sample) {
-    eData = edt_SDT_ll(edt, data.edt,sample = T)
-    pData = pdt_SDT_ll(pdt, data.pdt,sample = T)
-    nbData = nBack_ll(nb, data.nb,sample = T)
-    lData = lex_SDT_ll(lex, data.lex,sample = T)
-    
-    df <- tibble(
-      subject = sub,
-      edt = list(
-        tibble(eData)
-      ),
-      pdt = list(
-        tibble(pData)
-      ),
-      nback = list(
-        tibble(nbData)
-      ),
-      ldt = list(
-        tibble(lData)
-      )
-    )
-    return(df)
-  } else {
-    if(nrow(data.edt)==0){
-      out.edt=1e-10
-    }else{
-      out.edt = edt_SDT_ll(edt, data.edt,sample = F)
-    }
-    
-    if(nrow(data.pdt)==0){
-      out.pdt=1e-10
-    }else{
-      out.pdt = pdt_SDT_ll(pdt, data.pdt,sample = F)
-    }
-    
-    if(nrow(data.nb)==0){
-      out.nb=1e-10
-    }else{
-      out.nb = nBack_ll(nb, data.nb,sample = F)
-    }
-    
-    if(nrow(data.lex)==0){
-      out.lex=1e-10
-    }else{
-      out.lex = lex_SDT_ll(lex, data.lex,sample = F)
-    }
-    
-    
-    out = sum(out.edt,out.pdt,out.nb,out.lex)
-    return(out)
+calc_ll <- function(sampled, sampled_MD = NULL){
+  data_all <- sampled_full$data
+  if (substitute(sampled) == "sampled_full"){
+    MD <- data.frame("sub" = rep(c(1:53), each=4), "task" = c(2:5))
   }
+  else{
+    MD <- id_MD(sampled)
+    MD <- t(as.data.frame(MD))
+    colnames(MD) <- c("sub", "task")
+    MD <- as.data.frame(MD)
+  }
+  mean_pars <- t(apply(sampled$samples$alpha[,, sampled$samples$stage == "sample"], 1:2, mean))
+  mean_pars_ll <- numeric()
   
+  df_final <- data.frame()
+  for (x in unique(MD$sub)) {
+    subMDlist <- x
+    sub_vector <- as.vector(sampled_full$subjects)
+    sub <- sub_vector[[subMDlist]]
+    task <- MD[MD$sub == x,]$task
+    
+    x <- mean_pars[sub, ]
+    edt = x[1:8]
+    pdt = x[9:14]
+    nb = x[15:17]
+    lex = x[18:21]
+    
+    
+    df <- as.data.frame(matrix(ncol = 5))
+    colnames(df) <- colnames(data_all[1:5])
+    df$subject <- sub
+    df$sub <- subMDlist
+    data = data_all[data_all$subject == sub,]
+    cat(" - ")
+    if (2 %in% task) {
+      df$edt <- edt_SDT_ll(edt, as.data.frame(data$edt))
+    }
+    else {
+      df$edt <- 0
+    }
+    if (3 %in% task) {
+      df$ldt <- lex_SDT_ll(lex, as.data.frame(data$ldt))
+    }
+    else {
+      df$ldt <- 0
+    }
+    if (4 %in% task) {
+      df$pdt <- pdt_SDT_ll(pdt, as.data.frame(data$pdt))
+    }
+    else {
+      df$pdt <- 0
+    }
+    if (5 %in% task) {
+      df$nback <- nBack_ll(nb, as.data.frame(data$nback))
+    }
+    else {
+      df$nback  <- 0
+    }
+    df$sum <- sum(df[df$subject == sub, 2:5])
+    df_final <- rbind(df_final, df)
+  }
+  return(df_final)
 }
 
-edt <- c("C.edt" , "H_M_O.d" , "H_M_C.d" , "H_F_O.d" , "H_F_C.d" , "A_M_O.d" ,"A_M_C.d" , "A_F_O.d" ) #EDT
-pdt <- c("C.pdt", "B_E.d", "B_M.d", "B_H.d", "O_E.d", "O_M.d") #PDT
-nb <- c("C.nb" , "target.d", "lure.d", "nonlure.d")      #nback
-lex <- c("C.lex", "HF.d", "LF.d", "VLF.d")      #lex
-
-pars<-c(edt,pdt,nb,lex)
-# tmp <- rnorm(length(x),mean=0,sd=1)
-# names(tmp)<-x
-# ll_joint(tmp,data[3,])
-
-priors <- list(
-  theta_mu_mean = rep(0, length(pars)),
-  theta_mu_var = diag(rep(1, length(pars)))
-)
-print(priors)
-# k=2
-# #For identifiability constraints (with diagonals). 
-# #Now the package will recognize that the diagonals are fixed, and no sign switching will be applied.
-# constraintMat <- matrix(1, nrow = length(pars), ncol = k)
-# constraintMat[upper.tri(constraintMat, diag = T)] <- 0 
+return_summary <- function(original_LL, MD_LL, sampled_MD, full = FALSE){
+  if (full == TRUE){
+    original_MD <- original_LL[2:5]
+  }
+  else{
+    original_MD <- ((original_LL[unique(t(as.data.frame(id_MD(sampled_MD)))[,1]),][2:5] * MD_LL[2:5])
+                    /MD_LL[2:5])
+  }
+                  
+  ll_dif <- original_MD - MD_LL[2:5]
   
+  median <- median(unname(unlist(ll_dif)), na.rm = TRUE)
+  mean <- mean(unname(unlist(ll_dif)), na.rm = TRUE)
+  std <- sd(unname(unlist(ll_dif)), na.rm = TRUE)
+  min <- min(ll_dif, na.rm = TRUE)
+  max <- max(ll_dif, na.rm = TRUE)
+  sum_OrigProp_LL <- sum(rowSums(original_MD, na.rm = TRUE))
+  sum_MD_LL <- sum(rowSums(MD_LL[2:5], na.rm = TRUE))
+  sum_dif <- sum_OrigProp_LL - sum_MD_LL
   
-  # Create the Particle Metropolis within Gibbs sampler object ------------------
-sampler <- pmwgs(
-    data = df,
-    pars = pars,
-    prior = priors,
-    ll_func = ll_joint
-  )
+  df <- as.data.frame(matrix(nrow=1, ncol=0))
+  df$MD <- deparse(substitute(MD_LL))
+  df$Min <- min
+  df$Max <- max
+  df$Median <- median
+  df$Mean <- mean
+  df$STD <- std
+  df[["Total Missing Task Log-likelihood Sum"]] <- sum_MD_LL
+  df[["Total Missing Task Sum Difference"]] <- sum_dif
+  
+  return(df)
+}
 
-sampler <- init(sampler) # i don't use any start points here
+id_outliers <- function(original_LL, MD_LL, sampled_MD){
+  original_MD <- ((original_LL[unique(t(as.data.frame(id_MD(sampled_MD)))[,1]),][2:5] * MD_LL[2:5])
+                / MD_LL[2:5])
+  
+  ll_ratio <- original_MD - MD_LL[2:5] 
+  ll_ratio$sub <- MD_LL$sub
+  return(ll_ratio)
+}
 
-# Sample! -------------------------------------------------------------------
-sampled <- run_stage(sampler, stage = "burn",iter = 10, particles = 20, n_cores = 1, epsilon = .1)
-sampled <- run_stage(sampled, stage = "adapt",iter = 10, particles = 20, n_cores =1, epsilon = .1)
-save(sampled, file = "SDT_first3_.RData")
-sampled <- run_stage(sampled, stage = "sample",iter = 100, particles = 20, n_cores =1, epsilon = .1)
-save(sampled, file = "SDT_full_.RData")
 
-sampled$samples$last_theta_sig_inv
+"create likelihood dataframe"
+
+original_LL <- calc_ll(sampled_full)
+df <- return_summary(original_LL, original_LL, full = TRUE)
+
+H1_LL <- calc_ll(sampled_h1)
+df <- rbind(df, return_summary(original_LL, H1_LL, sampled_h1))
+
+H2_LL <- calc_ll(sampled_h2)
+df <- rbind(df, return_summary(original_LL, H2_LL, sampled_h2))
+
+H3_LL <- calc_ll(sampled_h3)
+df <- rbind(df, return_summary(original_LL, H3_LL, sampled_h3))
+
+A1_LL <- calc_ll(sampled_a1)
+df <- rbind(df, return_summary(original_LL, A1_LL, sampled_a1))
+
+proportionalFit_LL <- calc_ll(sampled_prop)
+df <- rbind(df, return_summary(original_LL, proportionalFit_LL, sampled_prop))
+
+df <-  df[2:8] %>% mutate_all(funs(round(.,2)))
+
+destination <- r"(D:\Psychology\Master\Research Internship\Report\LL_table.csv)"
+write.csv(df, destination, row.names = FALSE)
+
+write.table(df, "clipboard", sep = ",")
+
+"ID outliers"
+id_prop <- id_outliers(original_LL, proportionalFit_LL, sampled_prop)

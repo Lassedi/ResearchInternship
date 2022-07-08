@@ -1,4 +1,4 @@
-
+###Plotting script for individual level posterior predictive plots###
 "EDT"
 list <- t(as.data.frame(MD_list)) 
 row.names(list) <-  NULL
@@ -15,7 +15,7 @@ for (sub in list[,1]){
                       alpha = 0.35, width = 0.15, size = 1.5, shape = 17, height = 0)+
           geom_point(df_edt_MD_alpha[df_edt_MD_alpha$sub == sub,],
                       mapping = aes(x = cond, y = prop, color = "Missing data fit"),
-                      alpha = 0.4, size = 3)+
+                      alpha = 0.4, size = 2)+
           scale_fill_manual(name = "", values = c("Real responses" = "#003366"))+
           scale_color_manual(name = "", values = c("Original fit" = "#003300", 
                                                    "Missing data fit" = "#FF6666"))+
@@ -26,7 +26,7 @@ for (sub in list[,1]){
           labs(title = "EDT - Generated response mean distributions vs real response mean",
                subtitle = paste("Response: Happy", "\nParticipant:", sub),
                x = "Condition",
-               y = "Mean"))    
+               y = "Count"))    
 }
 
 
@@ -46,7 +46,7 @@ for (sub in list[,1]){
                       alpha = 0.5, width = 0.15, size = 1.5, shape = 17, height = 0)+
           geom_point(df_pdt_alpha_MD[df_pdt_alpha_MD$sub == sub,],
                      mapping = aes(x = cond, y = prop, color = "Missing data fit"),
-                     alpha = 0.4, size = 3)+
+                     alpha = 0.4, size = 2)+
           scale_fill_manual(name = "", values = c("Real responses" = "#003366"))+
           scale_color_manual(name = "", values = c("Original fit" = "#003300", 
                                                    "Missing data fit" = "#FF6666"))+
@@ -57,7 +57,7 @@ for (sub in list[,1]){
           labs(title = "PDT - Generated response mean distributions vs real response mean",
                subtitle = paste("Response: Orange", "\nParticipant:", sub),
                x = "Condition",
-               y = "Mean"))    
+               y = "Count"))    
 }
 
 
@@ -77,7 +77,7 @@ for (sub in list[,1]){
                       alpha = 0.5, width = 0.15, size = 1.5, shape = 17, height = 0)+
           geom_point(df_ldt_alpha_MD[df_ldt_alpha_MD$sub == sub,],
                      mapping = aes(x = cond, y = prop, color = "Missing data fit"),
-                     alpha = 0.4, size = 3)+
+                     alpha = 0.4, size = 2)+
           scale_fill_manual(name = "", values = c("Real responses" = "#003366"))+
           scale_color_manual(name = "", values = c("Original fit" = "#003300", 
                                                    "Missing data fit" = "#FF6666"))+
@@ -88,7 +88,7 @@ for (sub in list[,1]){
           labs(title = "LDT - Generated response mean distributions vs real response mean",
                subtitle = paste("Response: Word", "\nParticipant:", sub),
                x = "Condition",
-               y = "Mean"))    
+               y = "Count"))    
 }
 
 
@@ -108,7 +108,7 @@ for (sub in list[,1]){
                       alpha = 0.35, width = 0.15, size = 1.5, shape = 17, height = 0)+
           geom_point(df_nback_alpha_MD[df_nback_alpha_MD$sub == sub,],
                      mapping = aes(x = cond, y = prop, color = "Missing data fit"),
-                     alpha = 0.4, size = 3)+
+                     alpha = 0.4, size = 2)+
           scale_fill_manual(name = "", values = c("Real responses" = "#003366"))+
           scale_color_manual(name = "", values = c("Original fit" = "#003300", 
                                                    "Missing data fit" = "#FF6666"))+
@@ -119,7 +119,7 @@ for (sub in list[,1]){
           labs(title = "N-back - Generated response mean distributions vs real response mean",
                subtitle = paste("Response: Target", "\nParticipant:", sub),
                x = "Condition",
-               y = "Mean"))    
+               y = "Count"))    
 }
 
 

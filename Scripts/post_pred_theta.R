@@ -1,3 +1,4 @@
+###Plotting script for group level posterior predictive plots###
 library(berryFunctions)
 
 ##check whether all participants have data - if not add 0
@@ -157,7 +158,7 @@ print(ggplot()+
                       alpha = 0.35, width = 0.15, size = 1.5, shape = 17, height = 0)+
           geom_point(df_list_MD,
                      mapping = aes(x = cond, y = name, color = "Missing data fit"),
-                     alpha = 0.4, size = 3)+
+                     alpha = 0.4, size = 2)+
           scale_fill_manual(name = "", values = c("Real responses" = "#003366"))+
           scale_color_manual(name = "", values = c("Original fit" = "#003300", 
                                                    "Missing data fit" = "#FF6666"))+
@@ -259,7 +260,7 @@ print(ggplot()+
                     alpha = 0.5, width = 0.15, size = 1.5, shape = 17, height = 0)+
         geom_point(df_list_MD,
                    mapping = aes(x = cond, y = name, color = "Missing data fit"),
-                   alpha = 0.4, size = 3)+
+                   alpha = 0.4, size = 2)+
         scale_fill_manual(name = "", values = c("Real responses" = "#003366"))+
         scale_color_manual(name = "", values = c("Original fit" = "#003300", 
                                                  "Missing data fit" = "#FF6666"))+
@@ -356,7 +357,7 @@ print(ggplot()+
                     alpha = 0.5, width = 0.15, size = 1.5, shape = 17)+
         geom_point(df_list_MD,
                    mapping = aes(x = cond, y = name, color = "Missing data fit"),
-                   alpha = 0.4, size = 3)+
+                   alpha = 0.4, size = 2)+
         scale_fill_manual(name = "", values = c("Real responses" = "#003366"))+
         scale_color_manual(name = "", values = c("Original fit" = "#003300", 
                                                  "Missing data fit" = "#FF6666"))+
@@ -461,7 +462,7 @@ print(ggplot()+
                     alpha = 0.5, width = 0.15, size = 1.5, shape = 17)+
         geom_point(df_list_MD,
                    mapping = aes(x = cond, y = name, color = "Missing data fit"),
-                   alpha = 0.4, size = 3)+
+                   alpha = 0.4, size = 2)+
         scale_fill_manual(name = "", values = c("Real responses" = "#003366"))+
         scale_color_manual(name = "", values = c("Original fit" = "#003300", 
                                                  "Missing data fit" = "#FF6666"))+

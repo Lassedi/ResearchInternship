@@ -1,3 +1,4 @@
+###Script used to create missing data exercises###
 rm(list = ls())
 setwd(r"(D:\Psychology\Master\Research Internship\Data)")
 
@@ -14,7 +15,7 @@ data <- data %>% select(-(digit:spatialspan))
 
 #check completeness of the data and remove participants that have less than 50 rows
 complete_data_check <- function(data){
-  for (participant in 1:56) {
+  for (participant in 1:53) {
     for (task in 2:5){
       if (nrow(data[[task]][[participant]]) < 50){
         cat("Par:", participant, "Task:", task)
@@ -109,7 +110,7 @@ assign_emptyDF <- function(data, npar = 1, ntasks = 1, proportional = FALSE) {
       }
       else{
         tasks <- task_list[sample(1:length(task_list), 1)]
-        #print("haoiefhEFOPÄRJ")
+        #print("haoiefhEFOP?RJ")
       }
       tasks_count <- append(tasks_count, tasks)
       
